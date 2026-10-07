@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-06T13:11:17.148160+00:00",
+  "updated_at": "2026-10-07T13:08:13.931128+00:00",
   "total_count": 266,
   "bounties": [
     {
@@ -430,7 +430,8 @@
       "body": "## Quest Chain: Harden the Chain\n\nFor security-minded contributors. Complete each step to earn up to **100 RTC** and the **Guardian** title.\n\n---\n\n### Step 1: Read the Architecture (10 RTC)\nRead the codebase and write a 500+ word security assessment covering:\n- How attestation works (the \\`/attest/submit\\` flow)\n- How hardware fingerprinting prevents VM farms\n- How epoch rewards are calculated and distributed\n- One potential attack vector you identified\n\n**Prove it:** Post your assessment as a comment or gist link.\n\n---\n\n### Step 2: Reproduce a Known Fix (15 RTC)\nPick one vulnerability from BuilderFred's audit (all 6 are fixed):\n1. VM Fingerprint Bypass\n2. Antiquity Spoofing\n3. Mock Signature Mode\n4. Inline PubKey Hijack\n5. SQL Schema Mismatch\n6. Hardware Binding Bypass\n\nSet up a local test environment and demonstrate you understand HOW the fix works by:\n- Describing the attack before the fix\n- Showing the fix in the code\n- Explaining why the fix is sufficient (or isn't)\n\n**Prove it:** Write-up with code references.\n\n---\n\n### Step 3: Find Something New (75 RTC)\nFind and report a previously unknown security issue. Must include:\n- Clear description of the vulnerability\n- Steps to reproduce\n- Severity assessment (Critical/High/Medium/Low)\n- Suggested fix\n\n**Prove it:** File a responsible disclosure via the SECURITY.md process. If confirmed, earn the full 75 RTC + Guardian title.\n\n---\n\n### Completion\n\n| Steps | Reward | Title |\n|-------|--------|-------|\n| Step 1 only | 10 RTC | Security Explorer |\n| Steps 1 + 2 | 25 RTC | Security Analyst |\n| Steps 1 + 2 + 3 | **100 RTC** | **Guardian** |\n\n*You don't have to find a new vulnerability to earn from Steps 1 and 2. Those reward understanding, not just discovery.*",
       "url": "https://github.com/Scottcjn/rustchain-bounties/issues/398",
       "labels": [
-        "bounty"
+        "bounty",
+        "claimed"
       ],
       "created_at": "2026-02-22T15:25:06Z",
       "reward_rtc": 100.0,
