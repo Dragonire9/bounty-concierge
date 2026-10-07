@@ -101,6 +101,54 @@ class TestParseReward:
         reward = bounty_index.parse_reward("", "Reward is 42 RTC for this task")
         assert reward == 42.0
 
+    def test_parse_rtc_range_returns_floor(self):
+        """Ranged titles like [BOUNTY: 5-50 RTC] should return the floor (5.0)."""
+        title = "[BOUNTY: 5-50 RTC] Beacon Atlas"
+        reward = bounty_index.parse_reward(title, "")
+        assert reward == 5.0
+
+    def test_parse_rtc_range_with_spaces(self):
+        """Ranged titles with spaces around hyphen should return floor."""
+        title = "[BOUNTY: 50 - 200 RTC] YouTube video about RustChain"
+        reward = bounty_index.parse_reward(title, "")
+        assert reward == 50.0
+
+    def test_parse_rtc_range_en_dash(self):
+        """Ranges using en dash should return floor."""
+        title = "[BOUNTY: 10–20 RTC] En dash task"
+        assert bounty_index.parse_reward(title, "") == 10.0
+
+    def test_parse_rtc_range_em_dash(self):
+        """Ranges using em dash should return floor."""
+        title = "[BOUNTY: 10—20 RTC] Em dash task"
+        assert bounty_index.parse_reward(title, "") == 10.0
+
+    def test_parse_rtc_range_word_to(self):
+        """Ranges using 'to' should return floor."""
+        title = "[BOUNTY: 2 to 4 RTC] Participation task"
+        assert bounty_index.parse_reward(title, "") == 2.0
+
+    def test_parse_rtc_range_in_parentheses_after_text(self):
+        """Titles with non-reward RTC text preceding a range should capture range floor."""
+        title = "[BOUNTY] Red Team UTXO Implementation — Find Bugs, Earn RTC (33-133 RTC)"
+        assert bounty_index.parse_reward(title, "") == 33.0
+
+    def test_parse_rtc_range_decimals(self):
+        """Decimal ranges should return floor."""
+        title = "[BOUNTY: 0.5-2.5 RTC] Minor fix"
+        assert bounty_index.parse_reward(title, "") == 0.5
+
+    def test_parse_rtc_range_commas(self):
+        """Ranges with formatted commas should return parsed float floor."""
+        title = "[BOUNTY: 1,000 - 5,000 RTC] Massive migration"
+        assert bounty_index.parse_reward(title, "") == 1000.0
+
+    def test_parse_reward_range_helper(self):
+        """parse_reward_range should return (min, max) tuple or None."""
+        assert bounty_index.parse_reward_range("[BOUNTY: 5-50 RTC] Beacon Atlas", "") == (5.0, 50.0)
+        assert bounty_index.parse_reward_range("[BOUNTY: 15 RTC]", "") is None
+        assert bounty_index.parse_reward_range("Regular issue", "") is None
+
 
 class TestEstimateDifficulty:
     """Tests for difficulty estimation with exact tier assertions."""
@@ -175,6 +223,17 @@ class TestEstimateDifficulty:
         """Unknown labels should not affect reward-based estimate."""
         result = bounty_index.estimate_difficulty("Task", ["enhancement", "bug"], 75)
         assert result == "major"
+
+    def test_range_titles_difficulty_tiers_are_conservative(self):
+        """Difficulty tiers derived from range floors avoid inflating tiers."""
+        r_micro = bounty_index.parse_reward("[BOUNTY: 5-50 RTC] Beacon Atlas", "")
+        assert bounty_index.estimate_difficulty("Beacon Atlas", ["bounty"], r_micro) == "micro"
+
+        r_major = bounty_index.parse_reward("[BOUNTY: 50-200 RTC] YouTube video", "")
+        assert bounty_index.estimate_difficulty("YouTube video", ["bounty"], r_major) == "major"
+
+        r_std = bounty_index.parse_reward("[BOUNTY] UTXO (33-133 RTC)", "")
+        assert bounty_index.estimate_difficulty("UTXO", ["bounty"], r_std) == "standard"
 
 
 class TestTagSkills:
@@ -345,6 +404,20 @@ class TestFormatMarkdown:
         }]
         result = bounty_index.format_markdown(bounties)
         assert "7.0" in result
+
+    def test_format_reward_range_shown(self):
+        """Bounties with reward_range should display the range string."""
+        bounties = [{
+            "title": "Task",
+            "reward_rtc": 5.0,
+            "reward_range": [5.0, 50.0],
+            "number": 1,
+            "repo": "a/b",
+            "skills": [],
+            "difficulty": "micro"
+        }]
+        result = bounty_index.format_markdown(bounties)
+        assert "5-50" in result
 
 
 class TestFetchBountiesIntegration:

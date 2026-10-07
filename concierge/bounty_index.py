@@ -63,10 +63,11 @@ def fetch_bounties(repos=None, token=None):
                 label_names = [lb["name"] for lb in issue.get("labels", [])]
 
                 reward = parse_reward(title, body)
+                reward_range = parse_reward_range(title, body)
                 difficulty = estimate_difficulty(title, label_names, reward)
                 skills = tag_skills(title, body)
 
-                bounties.append({
+                bounty_entry = {
                     "repo": repo,
                     "number": issue["number"],
                     "title": title,
@@ -77,7 +78,11 @@ def fetch_bounties(repos=None, token=None):
                     "reward_rtc": reward,
                     "difficulty": difficulty,
                     "skills": skills,
-                })
+                }
+                if reward_range is not None:
+                    bounty_entry["reward_range"] = list(reward_range)
+
+                bounties.append(bounty_entry)
 
             if not getattr(resp, "links", {}).get("next"):
                 break
@@ -90,13 +95,20 @@ def fetch_bounties(repos=None, token=None):
 # Parsing helpers
 # ---------------------------------------------------------------------------
 
-_RTC_PATTERN = re.compile(r"(?<![A-Za-z0-9])(\d+(?:[.,]\d+)?)\s*RTC\b", re.IGNORECASE)
+_RTC_PATTERN = re.compile(
+    r"(?<![A-Za-z0-9])(\d+(?:[.,]\d+)?)(?:\s*(?:[-–—]|to|\.\.+)\s*(\d+(?:[.,]\d+)?))?\s*RTC\b",
+    re.IGNORECASE,
+)
 
 
 def parse_reward(title, body):
     """Extract the first RTC reward amount from a title or body string.
 
-    Looks for patterns like '150 RTC', '1,000 RTC', '0.5 RTC'.
+    For ranged rewards (e.g., '5-50 RTC', '50–200 RTC', '10 to 20 RTC'),
+    returns the lower bound / floor amount to ensure conservative difficulty
+    tier estimation and match the first stated amount.
+
+    Looks for patterns like '150 RTC', '1,000 RTC', '0.5 RTC', '5-50 RTC'.
     Returns the amount as a float, or 0.0 if nothing found.
     """
     for text in (title, body):
@@ -108,6 +120,26 @@ def parse_reward(title, body):
             except ValueError:
                 continue
     return 0.0
+
+
+def parse_reward_range(title, body):
+    """Extract the RTC reward range (min, max) from a title or body string if present.
+
+    Looks for range patterns like '5-50 RTC', '50–200 RTC', '10 to 20 RTC'.
+    Returns a tuple of (min, max) as floats, or None if no range is found.
+    """
+    for text in (title, body):
+        match = _RTC_PATTERN.search(text)
+        if match and match.group(2) is not None:
+            raw_min = match.group(1).replace(",", "")
+            raw_max = match.group(2).replace(",", "")
+            try:
+                val_min = float(raw_min)
+                val_max = float(raw_max)
+                return (min(val_min, val_max), max(val_min, val_max))
+            except ValueError:
+                continue
+    return None
 
 
 def estimate_difficulty(title, labels, reward):
@@ -200,9 +232,16 @@ def format_markdown(bounties):
         repo_short = b["repo"].split("/")[-1]
         skills = ", ".join(b["skills"]) if b["skills"] else "-"
         title_short = b["title"][:60]
+        if b.get("reward_range"):
+            r_min, r_max = b["reward_range"]
+            r_min_str = f"{r_min:.1f}" if r_min != int(r_min) else str(int(r_min))
+            r_max_str = f"{r_max:.1f}" if r_max != int(r_max) else str(int(r_max))
+            rtc_col = f"{r_min_str}-{r_max_str}"
+        else:
+            rtc_col = f"{b['reward_rtc']:.1f}"
         lines.append(
             f"| {b['number']} | {repo_short} | {title_short} | "
-            f"{b['reward_rtc']:.1f} | {b['difficulty']} | {skills} |"
+            f"{rtc_col} | {b['difficulty']} | {skills} |"
         )
     return "\n".join(lines)
 

@@ -64,7 +64,11 @@ def render_table(bounties: Iterable[dict], top_n: int = DEFAULT_TOP_N) -> str:
         title = (b.get("title") or "").strip().replace("|", "\\|")
         if len(title) > 60:
             title = title[:57] + "..."
-        rtc = _format_int(b.get("reward_rtc") or 0)
+        if b.get("reward_range"):
+            r_min, r_max = b["reward_range"]
+            rtc = f"{_format_int(r_min)}-{_format_int(r_max)}"
+        else:
+            rtc = _format_int(b.get("reward_rtc") or 0)
         diff = b.get("difficulty") or "unknown"
         skills = ", ".join(b.get("skills") or []) or "-"
         lines.append(

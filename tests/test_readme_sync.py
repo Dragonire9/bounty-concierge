@@ -62,6 +62,22 @@ def test_render_table_caps_to_top_n():
     assert len(rows) == 2
 
 
+def test_render_table_with_reward_range():
+    bounties_with_range = [
+        {
+            "repo": "org/repo",
+            "number": 10,
+            "title": "Ranged bounty",
+            "reward_rtc": 5.0,
+            "reward_range": [5.0, 50.0],
+            "difficulty": "micro",
+            "skills": ["python"],
+        }
+    ]
+    table = rs.render_table(bounties_with_range, top_n=5)
+    assert "| 5-50 | micro |" in table
+
+
 def test_update_readme_replaces_between_sentinels():
     original = (
         "Header\n\n"
