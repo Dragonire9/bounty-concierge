@@ -98,9 +98,9 @@ def validate_wallet_name(name):
 def check_wallet_exists(name):
     """Check whether a wallet already exists on the RustChain node.
 
-    Sends GET https://50.28.86.131/balance?miner_id=NAME and inspects the
-    response.  A wallet exists if the node returns balance data without an
-    error.
+    Sends GET https://50.28.86.131/wallet/balance?miner_id=NAME and inspects
+    the response.  A wallet exists if the node returns balance data without
+    an error.
 
     Args:
         name: The wallet / miner identifier string.
@@ -108,8 +108,8 @@ def check_wallet_exists(name):
     Returns:
         True if the wallet exists, False otherwise.
     """
-    result = _get("/balance", params={"miner_id": name})
-    if "error" in result:
+    result = get_balance(name)
+    if isinstance(result, dict) and "error" in result:
         return False
     # A zero balance still means the wallet entry exists.
     return True
@@ -118,15 +118,25 @@ def check_wallet_exists(name):
 def get_balance(name):
     """Return the RTC balance for a given wallet / miner ID.
 
+    Queries the active /wallet/balance endpoint on the RustChain node.
+    Normalises the returned payload so that both ``amount_rtc`` and
+    ``balance_rtc`` are available for backwards compatibility.
+
     Args:
         name: The miner or wallet identifier string.
 
     Returns:
         Parsed JSON dict from the node, e.g.
-        ``{"miner_id": "...", "balance_rtc": 42.5}``
+        ``{"miner_id": "...", "amount_rtc": 42.5, "balance_rtc": 42.5}``
         or an error dict on failure.
     """
-    return _get("/balance", params={"miner_id": name})
+    res = _get("/wallet/balance", params={"miner_id": name})
+    if isinstance(res, dict) and "error" not in res:
+        if "amount_rtc" in res and "balance_rtc" not in res:
+            res["balance_rtc"] = res["amount_rtc"]
+        elif "balance_rtc" in res and "amount_rtc" not in res:
+            res["amount_rtc"] = res["balance_rtc"]
+    return res
 
 
 def get_pending_transfers(name):

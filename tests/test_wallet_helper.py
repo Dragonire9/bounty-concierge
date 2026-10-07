@@ -123,10 +123,18 @@ class TestGetBalance(unittest.TestCase):
 
     @patch("concierge.wallet_helper._get")
     def test_returns_balance(self, mock_get):
-        mock_get.return_value = {"miner_id": "alice", "balance_rtc": 100.5}
+        mock_get.return_value = {"miner_id": "alice", "amount_rtc": 100.5}
         result = wallet_helper.get_balance("alice")
+        self.assertEqual(result["amount_rtc"], 100.5)
         self.assertEqual(result["balance_rtc"], 100.5)
-        mock_get.assert_called_once_with("/balance", params={"miner_id": "alice"})
+        mock_get.assert_called_once_with("/wallet/balance", params={"miner_id": "alice"})
+
+    @patch("concierge.wallet_helper._get")
+    def test_returns_balance_tolerates_legacy_balance_rtc(self, mock_get):
+        mock_get.return_value = {"miner_id": "alice", "balance_rtc": 50.0}
+        result = wallet_helper.get_balance("alice")
+        self.assertEqual(result["amount_rtc"], 50.0)
+        self.assertEqual(result["balance_rtc"], 50.0)
 
     @patch("concierge.wallet_helper._get")
     def test_returns_error(self, mock_get):
