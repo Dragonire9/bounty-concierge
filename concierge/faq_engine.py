@@ -172,8 +172,43 @@ def _normalise(text):
     return re.sub(r"\s+", " ", text)
 
 
+_STOPWORDS = {
+    "how", "do", "i", "what", "is", "can", "the", "a", "an", "and", "or",
+    "in", "on", "for", "of", "to", "are", "there", "why", "cant", "can't",
+}
+
+_SYNONYMS = {
+    "paid": "payout",
+    "pay": "payout",
+    "payouts": "payout",
+    "payout": "payout",
+    "payment": "payout",
+    "payments": "payout",
+    "withdraw": "wrtc",
+    "withdrawing": "wrtc",
+    "withdrawal": "wrtc",
+    "withdrawals": "wrtc",
+    "bridge": "wrtc",
+    "bridging": "wrtc",
+}
+
+
+def _get_tokens(text):
+    raw_words = _normalise(text).split()
+    tokens = set()
+    for w in raw_words:
+        tokens.add(w)
+        if w in _SYNONYMS:
+            tokens.add(_SYNONYMS[w])
+    return tokens
+
+
 def fuzzy_match(question, entries=None):
-    """Find the best FAQ match for a question using word-overlap scoring.
+    """Find the best FAQ match for a question using content-weighted scoring.
+
+    Filters common stopwords, expands domain synonyms (e.g. paid -> payout,
+    withdraw -> wrtc), and weights informative content tokens to prevent
+    filler words from skewing matches.
 
     Args:
         question:  Free-text question string.
@@ -187,29 +222,56 @@ def fuzzy_match(question, entries=None):
     if not entries:
         return ("", "", 0.0)
 
-    q_words = set(_normalise(question).split())
+    q_raw = _normalise(question)
+    q_words = set(q_raw.split())
     if not q_words:
         return ("", "", 0.0)
+
+    # Fast path for exact match
+    for key, answer in entries.items():
+        if _normalise(key) == q_raw:
+            return (key, answer, 1.0)
+
+    q_tokens = _get_tokens(question)
+    q_content = {w for w in q_tokens if w not in _STOPWORDS}
 
     best_key = ""
     best_answer = ""
     best_score = 0.0
 
     for key, answer in entries.items():
-        key_words = set(_normalise(key).split())
-        if not key_words:
+        k_tokens = _get_tokens(key)
+        k_content = {w for w in k_tokens if w not in _STOPWORDS}
+        if not k_tokens:
             continue
 
-        overlap = q_words & key_words
-        # Jaccard-like score biased toward the shorter set
-        score = len(overlap) / min(len(q_words), len(key_words)) if overlap else 0.0
+        overlap_content = q_content & k_content
+        overlap_all = q_tokens & k_tokens
+
+        if not overlap_all:
+            continue
+
+        if q_content and k_content:
+            recall = len(overlap_content) / len(q_content)
+            prec = len(overlap_content) / len(k_content)
+            f1 = 2 * (prec * recall) / (prec + recall) if (prec + recall) > 0 else 0.0
+
+            bonus = 0.0
+            if "wrtc" in overlap_content and "wrtc" in k_content:
+                bonus += 0.5
+            if "payout" in overlap_content and "payout" in k_content:
+                bonus += 0.4
+
+            score = f1 + bonus
+        else:
+            score = len(overlap_all) / max(len(q_tokens), len(k_tokens))
 
         if score > best_score:
             best_score = score
             best_key = key
             best_answer = answer
 
-    return (best_key, best_answer, best_score)
+    return (best_key, best_answer, min(1.0, round(best_score, 4)))
 
 
 # ---------------------------------------------------------------------------

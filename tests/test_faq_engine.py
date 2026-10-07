@@ -63,6 +63,18 @@ class TestFuzzyMatch:
         for stale in ("ergo", "base l2", "solana", "dex bounty", "issue #32"):
             assert stale not in answer.lower(), stale
 
+    def test_get_paid_routes_to_payouts(self):
+        """Common phrasing 'how do i get paid' should match payouts rather than wallet setup."""
+        key, answer, score = faq_engine.fuzzy_match("how do i get paid")
+        assert key == "how do payouts work"
+        assert score > 0.5
+
+    def test_withdraw_routes_to_wrtc(self):
+        """Withdrawal question 'why cant i withdraw rtc' should reach the wRTC notice."""
+        key, answer, score = faq_engine.fuzzy_match("why cant i withdraw rtc")
+        assert key == "what is wrtc"
+        assert score > 0.5
+
     def test_claim_faq_gives_canonical_address_format(self):
         key, answer, score = faq_engine.fuzzy_match("how do i claim a bounty")
         assert "40 lowercase hex" in answer
