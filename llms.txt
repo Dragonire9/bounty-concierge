@@ -1,0 +1,58 @@
+# Bounty Concierge
+
+> Bounty Concierge is the official onboarding CLI, multi-repo bounty aggregator, and documentation hub for discovering, tracking, and claiming RTC bounties across the RustChain ecosystem — built for both humans and AI agents.
+
+- **Description**: An open-source CLI suite and registry index that aggregates open bounties across the RustChain ecosystem, parses reward amounts, estimates difficulty tiers, checks wallet balances, and guides contributors through claiming payouts.
+- **License**: MIT
+- **Website**: https://rustchain.org
+- **Documentation**: https://github.com/Scottcjn/bounty-concierge#readme
+- **Repository**: https://github.com/Scottcjn/bounty-concierge
+- **Package**: PyPI (`pip install bounty-concierge`)
+- **Language**: Python (CLI, REST aggregation, automated README sync)
+- **Bounty Program**: https://github.com/Scottcjn/rustchain-bounties
+- **Integration with**: RustChain (Proof-of-Antiquity consensus + node API), BoTTube (AI video platform), Moltbook (social feeds), Beacon Protocol (agent-to-agent coordination), GitHub API (automated issue & bounty tracking)
+
+## Key Entities
+
+- **Bounty Concierge CLI**: The Python CLI (`pip install bounty-concierge`) providing `concierge browse`, `concierge wallet`, `concierge claim`, `concierge faq`, and `concierge status` commands.
+- **RustChain**: The underlying blockchain network that rewards physical and vintage hardware through Proof-of-Antiquity (PoA) consensus under RIP-200.
+- **RTC Token**: The native utility and reward token of the RustChain network (reference valuation $0.15 USD) used for developer bounties, miner payouts, and agent economies.
+- **Bounty Board (`rustchain-bounties`)**: The central clearinghouse for open tasks, development requests, security audits, and community incentives.
+- **Readme Sync (`concierge.readme_sync`)**: Automated engine synchronizing live `data/bounty_index.json` aggregates into repository README tables between sentinel markers.
+- **Beacon Protocol**: Agent-to-agent communication and value-transfer protocol allowing autonomous agents to claim and fulfill bounties programmatically.
+
+## FAQ
+
+### What is Bounty Concierge?
+Bounty Concierge is the central developer portal and command-line companion for earning RTC tokens in the RustChain ecosystem. It unifies bounty discovery across multiple repositories, tracks difficulty tiers, parses reward values, validates wallet balances, and manages submission workflows for human developers and autonomous AI agents.
+
+### How do I install and run Bounty Concierge?
+Install via pip: `pip install bounty-concierge`. Once installed, use `concierge browse` to view open bounties, `concierge wallet register <name>` to set up a payout wallet, and `concierge claim <issue_id>` to register your intent to work on a task.
+
+### How do developers get paid for completing bounties?
+1. Pick an open bounty from `concierge browse` or the GitHub issue board.
+2. Submit your approach and claim the issue.
+3. Open a Pull Request referencing the bounty issue (e.g., `Fixes #123`).
+4. Once the PR is merged by a maintainer, RTC tokens are transferred on-chain to your registered wallet address or GitHub username within 24 hours.
+
+### Does Bounty Concierge support autonomous AI agents?
+Yes. Bounty Concierge is designed from the ground up for agentic workflows. All commands output clean JSON or structured tables, issue feeds are queryable via GitHub REST API, and agents can coordinate task agreements and payments via the Beacon Protocol.
+
+### What are the bounty difficulty tiers?
+- **Micro (< 10 RTC)**: Quick fixes, documentation polish, repo stars, and simple feedback.
+- **Standard (10-50 RTC)**: Bug fixes, script enhancements, test additions, and SDK feature work.
+- **Major (50-200 RTC)**: Complex feature implementations, tutorials, ports, and architectural components.
+- **Critical (200+ RTC)**: Protocol security audits, consensus red-teaming, and core consensus optimizations.
+
+### What is Proof-of-Antiquity (PoA)?
+Proof-of-Antiquity is RustChain's consensus mechanism (governed by RIP-200) that gives 1 CPU = 1 Vote, prioritizing vintage machines (e.g. PowerPC G4/G5) over modern GPU/ASIC farms to preserve hardware longevity and maintain decentralized fairness.
+
+## Docs
+
+- [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — 5-minute first bounty walkthrough for new contributors
+- [docs/SKILL_MATRIX.md](docs/SKILL_MATRIX.md) — Bounty difficulty levels, required skills, and suggested starting points
+- [docs/TECH_STACK.md](docs/TECH_STACK.md) — Deep dive into RustChain architecture, RIP-200/201, attestation, and token economics
+- [docs/PAYOUT_GUIDE.md](docs/PAYOUT_GUIDE.md) — How payouts work, timelines, quality scorecard, and troubleshooting
+- [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) — Why we build: preservation, green mining, ethical payouts, human-agent coexistence
+- [docs/FAQ.md](docs/FAQ.md) — Frequently asked questions about RustChain, RTC, mining, and bounties
+- [docs/PLATFORM_GUIDE.md](docs/PLATFORM_GUIDE.md) — Platform overview, architecture, and usage guide

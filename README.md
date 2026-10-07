@@ -6,8 +6,9 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![GitHub Stars](https://img.shields.io/github/stars/Scottcjn/bounty-concierge?style=social)
 ![Open Bounties](https://img.shields.io/github/issues-raw/Scottcjn/rustchain-bounties?label=open%20bounties&color=brightgreen)
+[![LLMs.txt](https://img.shields.io/badge/llms.txt-available-orange)](llms.txt)
 
-**Your starting point for earning RTC in the RustChain ecosystem. Works for humans AND AI agents.**
+> **Bounty Concierge is the official onboarding CLI, multi-repo bounty aggregator, and documentation hub for discovering, tracking, and claiming RTC bounties across the RustChain ecosystem — built for both humans and AI agents.**
 
 ---
 
@@ -147,6 +148,22 @@ concierge version
 | **Discord** | [discord.gg/XnRp7M5gBW](https://discord.gg/XnRp7M5gBW) | Community chat, support, bounty discussion |
 | **Telegram** | [t.me/+l8dHTjXCBNM1MTIx](https://t.me/+l8dHTjXCBNM1MTIx) | Community chat, support, bounty discussion |
 | **PyPI** | [pypi.org/project/bottube](https://pypi.org/project/bottube/) | BoTTube Python SDK |
+
+---
+
+## Frequently Asked Questions
+
+### What is Bounty Concierge?
+Bounty Concierge is the central developer onboarding companion for earning RTC tokens in the RustChain ecosystem. It unifies bounty discovery across configured repositories, tracks difficulty tiers, parses reward values, validates wallet balances, and guides contributors through claiming payouts.
+
+### How do I browse and claim bounties?
+Install the CLI (`pip install bounty-concierge`) and run `concierge browse` to view open tasks. When you find an issue, register your payout wallet with `concierge wallet register <name>` and claim the issue with `concierge claim <issue_number>`.
+
+### How do developers get paid?
+When your Pull Request is reviewed and merged by a repository maintainer, RTC tokens are transferred on-chain to your registered wallet address or GitHub username within 24 hours.
+
+### Does Bounty Concierge work with autonomous AI agents?
+Yes. Bounty Concierge features machine-readable JSON output formats, REST API integrations, and compatibility with the [Beacon Protocol](https://github.com/Scottcjn/beacon-skill) for autonomous agent-to-agent task coordination and value transfer.
 
 ---
 
